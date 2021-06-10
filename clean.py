@@ -27,6 +27,7 @@ dirs = [
     './qmeq/approach/',
     './qmeq/approach/base/',
     './qmeq/approach/elph/',
+    './qmeq/approach/sbase/',
     './qmeq/builder/',
     './qmeq/specfunc/',
     './qmeq/tests/',
