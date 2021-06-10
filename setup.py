@@ -37,6 +37,10 @@ def get_ext_modules():
                  'qmeq/approach/elph/c_redfield.c',
                  'qmeq/approach/elph/c_neumann1.c',
                  'qmeq/specfunc/c_specfunc_elph.c',
+                 #######################################################################################################
+                 # sbase
+                 'qmeq/approach/sbase/c_pauli.c',
+                 #######################################################################################################
                  # wrappers
                  'qmeq/wrappers/c_lapack.c',
                  'qmeq/wrappers/c_mytypes.c',]
@@ -97,6 +101,9 @@ setup(name='qmeq',
                 'qmeq/approach',
                 'qmeq/approach/base',
                 'qmeq/approach/elph',
+                ########################################################################################################
+                'qmeq/approach/sbase',
+                ########################################################################################################
                 'qmeq/builder',
                 'qmeq/specfunc',
                 'qmeq/tests',
@@ -104,6 +111,9 @@ setup(name='qmeq',
       package_data={'qmeq/approach':      ['*.pyx', '*.c', '*.pyd', '*.o', '*.so'],
                     'qmeq/approach/base': ['*.pyx', '*.c', '*.pyd', '*.o', '*.so'],
                     'qmeq/approach/elph': ['*.pyx', '*.c', '*.pyd', '*.o', '*.so'],
+                    ####################################################################################################
+                    'qmeq/approach/sbase': ['*.pyx', '*.c', '*.pyd', '*.o', '*.so'],
+                    ####################################################################################################
                     'qmeq/specfunc':      ['*.pyx', '*.c', '*.pyd', '*.o', '*.so'],
                     'qmeq/wrappers':      ['*.pyx', '*.c', '*.pyd', '*.o', '*.so'], },
       zip_safe=False,

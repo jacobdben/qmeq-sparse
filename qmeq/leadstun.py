@@ -60,6 +60,10 @@ def construct_Tba(leads, tleads, Tba_=None):
                     continue
                 Tba[j3, ind, j1] += fsign*tamp
             else:
+                ########################################################################################################
+                if si.symmetry == 'parity':
+                    continue
+                ########################################################################################################
                 statep = list(state)
                 statep[j2] = 0
                 ind = si.get_ind(statep)
@@ -215,6 +219,11 @@ def rotate_Tba(Tba0, vecslst, si, indexing=None, mtype=complex):
             Tba[l, i1:i2][:, i3:i4] = np.dot(vecslst[charge].conj().T,
                                              np.dot(Tba0[l, i1:i2][:, i3:i4],
                                                     vecslst[charge+1]))
+            ############################################################################################################
+            if si.symmetry == 'parity':
+                Tba[l, i3:i4][:, i1:i2] = vecslst[charge+1].conj().T @ Tba0[l, i3:i4][:, i1:i2] @ vecslst[charge]
+                continue
+            ############################################################################################################
             Tba[l, i3:i4][:, i1:i2] = Tba[l, i1:i2][:, i3:i4].conj().T
     return Tba
 # ---------------------------------------------------------------------------------------------------

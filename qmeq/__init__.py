@@ -47,6 +47,10 @@ from .builder.builder_base import BuilderManyBody
 from .builder.builder_base import ModelParameters
 from .builder.builder_elph import BuilderElPh
 from .builder.builder_elph import BuilderManyBodyElPh
+########################################################################################################################
+from .builder.builder_sbase import BuilderSBase
+from .builder.builder_sbase import BuilderManyBodyS
+########################################################################################################################
 from .builder.funcprop import FunctionProperties
 from .indexing import StateIndexing
 from .indexing import StateIndexingPauli

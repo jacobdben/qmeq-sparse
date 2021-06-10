@@ -19,7 +19,7 @@ try:
     from .c_specfunc import c_func_1vN
     from .c_specfunc_elph import Func
 except ImportError:
-    print("WARNING: Cannot import Cython compiled modules for the special functions (specfunc.__init__.py).")
+    print("WARNING: Cannot import Cython compiled modules for the special functions (specfunc.init__.py).")
     c_fermi_func = fermi_func
     c_func_pauli = func_pauli
     c_func_1vN = func_1vN

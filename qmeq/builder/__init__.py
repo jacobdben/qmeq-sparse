@@ -11,4 +11,8 @@ from .builder_base import BuilderBase
 from .builder_base import BuilderManyBody
 from .builder_elph import BuilderElPh
 from .builder_elph import BuilderManyBodyElPh
+########################################################################################################################
+from .builder_sbase import BuilderSBase
+from .builder_sbase import BuilderManyBodyS
+########################################################################################################################
 from .funcprop import FunctionProperties

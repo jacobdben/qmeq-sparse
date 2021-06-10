@@ -130,6 +130,33 @@ def construct_ham_hopping(qd, hsingle, statelst, ham_=None):
                     ham_hopping[j1, ind] += hop.conjugate()*fsign
     return ham_hopping
 
+########################################################################################################################
+def construct_ham_pairing(qd, pairing, statelst, ham_=None):
+    si, mtype, herm_hs = qd.si, qd.mtype, qd.herm_hs
+    nstates = len(statelst)
+    if ham_ is not None:
+        ham_pairing = ham_
+    else:
+        ham_pairing = np.zeros((nstates, nstates), dtype=mtype)
+    # Iterate over many-body states
+    for j1 in range(nstates):
+        state = si.get_state(statelst[j1])
+        # Iterate over pairing matrix elements
+        for j2 in pairing:
+            (m, n), Delta = j2, pairing[j2]
+            if m < n and state[m] == 0 and state[n] == 0:
+                statep = list(state)
+                statep[m] = 1
+                statep[n] = 1
+                state_index = si.get_ind(statep)
+                if state_index is None:
+                    continue
+                ind = statelst.index(state_index)
+                #I consider herm_hs to be always true, could change in the future. Maybe add a herm_pairing in builder
+                ham_pairing[ind, j1] += Delta * (-1) ** int(sum(state[0:n])) * (-1) ** int(sum(state[0:m]))
+                ham_pairing[j1, ind] += (Delta * (-1) ** int(sum(state[0:n])) * (-1) ** int(sum(state[0:m]))).conjugate()
+    return ham_pairing
+########################################################################################################################
 
 def construct_manybody_eigenstates(qd, hsingle, coulomb, statelst, ham_=None):
     """
@@ -679,6 +706,18 @@ def make_coulomb_dict(qd, coulomb):
         return coulomb_dict_spin
     else:
         return coulomb_dict
+
+########################################################################################################################
+def make_pairing_dict(qd, pairing):
+    si = qd.si
+    #
+    if isinstance(pairing, dict):
+        pairing_dict = pairing
+    else:
+        return {}
+    #
+    return pairing_dict
+########################################################################################################################
 # ---------------------------------------------------------------------------------------------------
 
 
@@ -792,7 +831,7 @@ class QuantumDot(object):
                 if j0 in self.coulomb:
                     self.coulomb[j0] += coulomb[j0]
                 else:
-                    self.hsingle.update({j0: coulomb[j0]})
+                    self.coulomb.update({j0: coulomb[j0]})
         #
         if self.si.indexing == 'sz':
             for charge in range(self.si.ncharge):
@@ -941,3 +980,56 @@ class QuantumDot(object):
     def set_Ea(self):
         """Sets the many-body eigenstates using construct_Ea_manybody()."""
         self.Ea[:] = construct_Ea_manybody(self.valslst, self.si)
+
+########################################################################################################################
+class QuantumDotS(QuantumDot):
+
+    def __init__(self, hsingle, coulomb, pairing, si,
+                 herm_hs=True, herm_c=False, m_less_n=True,
+                 mtype=float, ham_ssq_q=False):
+
+        super().__init__(hsingle=hsingle, coulomb=coulomb, si=si,
+                 herm_hs=herm_hs, herm_c=herm_c, m_less_n=m_less_n,
+                 mtype=mtype, ham_ssq_q=ham_ssq_q)
+
+        self.pairing = pairing
+        self.add_pairing(self.pairing, False)
+
+    def add_pairing(self, pairing=None, updateq=True):
+        if updateq:
+            pairing = {} if pairing is None else make_pairing_dict(self, pairing)
+            for j0 in pairing:
+                if j0 in self.pairing:
+                    self.pairing[j0] += pairing[j0]
+                else:
+                    self.pairing.update({j0: pairing[j0]})
+        #
+        for charge in range(self.si.ncharge):
+            chargelst = self.si.get_lst(charge)
+            self.hamlst[charge] = construct_ham_pairing(self, pairing, chargelst,
+                                                        self.hamlst[charge])
+
+    def change_pairing(self, pairing=None, updateq=True):
+        """
+        As change() of parent but for pairing.
+        """
+        pairing = {} if pairing is None else make_pairing_dict(self, pairing)
+        #
+        pairing_add = {}
+        # Find the differences from the previous pairing Hamiltonian
+        for j0 in pairing:
+            if j0 in self.pairing:
+                pairing_diff = pairing[j0]-self.pairing[j0]
+                if pairing_diff != 0:
+                    pairing_add.update({j0: pairing_diff})
+                    if updateq:
+                        self.pairing[j0] += pairing_diff
+            else:
+                pairing_diff = pairing[j0]
+                if pairing_diff != 0:
+                    pairing_add.update({j0: pairing_diff})
+                    if updateq:
+                        self.pairing.update({j0: pairing_diff})
+        # Then add the differences
+        self.add_pairing(pairing_add, False)
+########################################################################################################################

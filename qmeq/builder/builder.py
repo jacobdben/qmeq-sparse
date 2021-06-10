@@ -8,7 +8,10 @@ from .builder_base import BuilderBase
 from .builder_base import BuilderManyBody
 from .builder_elph import BuilderElPh
 from .builder_elph import BuilderManyBodyElPh
-
+########################################################################################################################
+from .builder_sbase import BuilderSBase
+from .builder_sbase import BuilderManyBodyS
+########################################################################################################################
 
 # noinspection PyUnresolvedReferences
 class Builder(BuilderBase):
@@ -166,3 +169,12 @@ class Builder(BuilderBase):
     @classmethod
     def many_body_elph(cls, *args, **kwargs):
         return BuilderManyBodyElPh(*args, **kwargs)
+    ####################################################################################################################
+    @classmethod
+    def sbase(cls, *args, **kwargs):
+        return BuilderSBase(*args, **kwargs)
+
+    @classmethod
+    def many_body_s(cls, *args, **kwargs):
+        return BuilderManyBodyS(*args, **kwargs)
+    ####################################################################################################################

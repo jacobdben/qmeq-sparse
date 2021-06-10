@@ -56,6 +56,30 @@ def integer_to_binarylist(num, binlen=0, strq=False):
     rez = value if strq else list(map(int, str(value)))
     return rez
 
+########################################################################################################################
+def construct_schargelst(ncharge, nsingle):
+    """
+    Makes list of lists containing Lin indices of the states for given charge.
+
+    Parameters
+    ----------
+    nsingle : int
+        Number of single particle states.
+
+    Returns
+    -------
+    chargelst : list of lists
+        chargelst[charge] gives a list of state indices for given charge,
+        chargelst[charge][ind] gives state index.
+    """
+    nmany = np.power(2, nsingle)
+    chargelst = [[] for _ in range(ncharge)]
+    # Iterate over many-body states
+    for j1 in range(nmany):
+        state = integer_to_binarylist(j1, nsingle)
+        chargelst[sum(state)%2].append(j1)
+    return chargelst
+########################################################################################################################
 
 def construct_chargelst(nsingle):
     """
@@ -485,7 +509,9 @@ class StateIndexing(object):
         self.nsingle = nsingle
         self.indexing = indexing
         self.symmetry = symmetry
-        self.ncharge = nsingle+1
+        ################################################################################################################
+        self.ncharge = nsingle+1 if symmetry is not 'parity' else 2 # If symmetry is 'parity', 'charge' stands for parity from here on
+        ################################################################################################################
         self.nmany = 2**nsingle
         self.nleads = nleads
         self.nleads_sym = nleads//2 if symmetry is 'spin' else nleads
@@ -495,9 +521,16 @@ class StateIndexing(object):
         self.szlst = None
         self.ssqlst = None
         if indexing == 'charge':
-            self.chargelst_lin = construct_chargelst(nsingle)
-            self.chargelst = enum_chargelst(self.chargelst_lin)
-            self.i = flatten(self.chargelst_lin)
+            ############################################################################################################
+            if symmetry == 'parity': # This is the added part
+                self.chargelst_lin = construct_schargelst(self.ncharge, nsingle)
+                self.chargelst = enum_chargelst(self.chargelst_lin)
+                self.i = flatten(self.chargelst_lin)
+            else: # This would be the case normally
+                self.chargelst_lin = construct_chargelst(nsingle)
+                self.chargelst = enum_chargelst(self.chargelst_lin)
+                self.i = flatten(self.chargelst_lin)
+            ############################################################################################################
         elif (indexing == 'sz' or indexing == 'ssq') and self.nsingle % 2 == 0:
             self.chargelst_lin = construct_chargelst(nsingle)
             self.chargelst = enum_chargelst(self.chargelst_lin)
