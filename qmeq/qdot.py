@@ -5,6 +5,9 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
+from scipy import sparse
+from scipy.sparse.linalg import eigsh
+
 
 from .indexing import empty_szlst
 from .indexing import empty_ssqlst
@@ -44,7 +47,7 @@ def construct_ham_coulomb(qd, coulomb, statelst, ham_=None):
     if ham_ is not None:
         ham_coulomb = ham_
     else:
-        ham_coulomb = np.zeros((nstates, nstates), dtype=mtype)
+        ham_coulomb = sparse.lil_matrix((nstates, nstates), dtype=mtype)
     # Iterate over many-body states
     for j1 in range(nstates):
         state = si.get_state(statelst[j1])
@@ -103,7 +106,7 @@ def construct_ham_hopping(qd, hsingle, statelst, ham_=None):
     if ham_ is not None:
         ham_hopping = ham_
     else:
-        ham_hopping = np.zeros((nstates, nstates), dtype=mtype)
+        ham_hopping = sparse.lil_matrix((nstates, nstates), dtype=mtype)
     # Iterate over many-body states
     for j1 in range(nstates):
         state = si.get_state(statelst[j1])
@@ -137,7 +140,7 @@ def construct_ham_pairing(qd, pairing, statelst, ham_=None):
     if ham_ is not None:
         ham_pairing = ham_
     else:
-        ham_pairing = np.zeros((nstates, nstates), dtype=mtype)
+        ham_pairing = sparse.lil_matrix((nstates, nstates), dtype=mtype)
     # Iterate over many-body states
     for j1 in range(nstates):
         state = si.get_state(statelst[j1])
@@ -189,7 +192,7 @@ def construct_manybody_eigenstates(qd, hsingle, coulomb, statelst, ham_=None):
         ham_coulomb = construct_ham_coulomb(qd, coulomb, statelst)
         ham_hopping = construct_ham_hopping(qd, hsingle, statelst)
         ham = ham_coulomb + ham_hopping
-    ham_vals, ham_vecs = np.linalg.eigh(ham)
+    ham_vals, ham_vecs = eigsh(ham.tocsr(), k = 2, return_eigenvectors=True, which='SA')
     return ham_vals, ham_vecs
 
 
